@@ -37,6 +37,7 @@ This file defines the ctBranch structure, which forms the branch decomposition. 
 */
 
 #include <stdlib.h> /* size_t */
+#include <stdio.h> /* FILE */
 
 struct ctBranch;
 struct ctContext;
@@ -120,6 +121,9 @@ ctBranch*  ctBranch_new    ( size_t extremum, size_t saddle, struct ctContext* c
 /** Delete a branch using the deallocator specified by \ref ct_branchAllocator */
 void  ctBranch_delete ( ctBranch * self, struct ctContext* ctx );
 
+/** Loading and Saving */
+void ctBranch_save(ctBranch *b, const char *filename, void (*saveUserDataFct)(void *us, FILE*f));
+ctBranch* ctBranch_load(struct ctContext *ctx, const char *filename, void *(*loadUserDataFct)(FILE*));
 
 #endif
 

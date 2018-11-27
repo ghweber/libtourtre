@@ -140,3 +140,96 @@ void ctBranchList_merge( ctBranchList * self, ctBranchList * other, ctContext * 
     }
 }
 
+void ctBranch_saveFile(ctBranch *b, FILE* f,
+        void (*saveUserDataFct)(void *u, FILE* f))
+{
+    ctBranch *c;
+    fwrite("(", sizeof(char), 1, f);
+    fwrite(&(b->extremum), sizeof(size_t), 1, f);
+    fwrite(&(b->saddle), sizeof(size_t), 1, f);
+    if (saveUserDataFct) (*saveUserDataFct)(b->data, f);
+    for (c = b->children.head; c != NULL; c = c->nextChild)
+    {
+        ctBranch_saveFile(c, f, saveUserDataFct);
+    }
+    fwrite(")", sizeof(char), 1, f);
+}
+
+void ctBranch_save(ctBranch *b, const char *filename,
+        void (*saveUserDataFct)(void *u, FILE* f))
+{
+    FILE *f = fopen(filename, "w");
+    if (f)
+        ctBranch_saveFile(b, f, saveUserDataFct);
+    else
+        fprintf(stderr, "Error: Could not open file %s for writing.", filename);
+}
+
+ctBranch* ctBranch_loadFile(ctContext *ctx, FILE *f,
+        void *(*loadUserDataFct)(FILE* f))
+{
+    char buff;
+    size_t extremum, saddle;
+    ctBranch *r;
+    ctBranch *c;
+
+    {
+        fread(&extremum, sizeof(size_t), 1, f);
+        fread(&saddle, sizeof(size_t), 1, f);
+        r = ctBranch_new(extremum, saddle, ctx);
+        if (loadUserDataFct)
+            r->data = (*loadUserDataFct)(f);
+        else
+            r->data = 0;
+        fread(&buff, sizeof(char), 1, f);
+        while (buff == '(')
+        {
+            c = ctBranch_loadFile(ctx, f, loadUserDataFct);
+            if (!c)
+            {
+                ctBranch_delete(r, ctx);
+                return 0;
+            }
+            else
+            {
+                ctBranchList_add(&(r->children), c, ctx);
+		c->parent = r;
+            }
+            fread(&buff, sizeof(char), 1, f);
+        }
+        if (buff != ')')
+        {
+            fprintf(stderr, "Error: Corrupt file. Expected branch start or end marker.\n");
+            ctBranch_delete(r, ctx);
+            return 0;
+        }
+
+        return r;
+    }
+}
+
+ctBranch* ctBranch_load(ctContext *ctx, const char* filename,
+        void *(*loadUserDataFct)(FILE* f))
+{
+    char buff;
+    FILE *f;
+    f = fopen(filename, "r");
+    if (f)
+    {
+        fread(&buff, sizeof(char), 1, f);
+        if (buff == '(')
+        {
+            return ctBranch_loadFile(ctx, f, loadUserDataFct);
+        }
+        else
+        {
+            fprintf(stderr, "Error: Corrupt file. Expected branch start marker\n");
+            return 0;
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Error: Could not open file %s for reading.", filename);
+        return 0;
+    }
+}
