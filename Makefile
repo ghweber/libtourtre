@@ -23,7 +23,7 @@ libtourtre.a : $(objs)
 	$(AR) $(ARFLAGS) $@ $^
 	
 libtourtre.so : $(objs)
-	$(CC) -shared -o $@ $^
+	$(CC) -shared -o $@ -Wl,-install_name,$(abspath $@) $^
 
 src/tourtre.o : src/tourtre.c include/tourtre.h src/ctMisc.h include/ctArc.h include/ctNode.h src/ctComponent.h include/ctNode.h src/ctQueue.h src/ctAlloc.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@

@@ -20,7 +20,8 @@ COMPILE_FLAGS = -g
 LIB_DIRS = -L../.. 
 
 #linker flags
-LINK_FLAGS = -ltourtre -ltiff -Wl,--rpath=../..
+#LINK_FLAGS = -ltourtre -ltiff -Wl,--rpath=../..
+LINK_FLAGS = -ltourtre -ltiff
 
 #preprocessor defines
 DEFINES = 
