@@ -1,0 +1,15 @@
+examples/cs_tree/Data/
+examples/cs_tree/total_area.dat
+examples/cs_tree/total_volume.dat
+examples/cs_tree/tree_total_area.dat
+examples/cs_tree/tree_total_volume.dat
+examples/simple/obj/
+examples/simple/simple
+examples/simple/test
+examples/tiff/obj/
+examples/tiff/tifftree
+examples/trilinear/*.o
+examples/trilinear/tltree
+libtourtre.a
+libtourtre.so
+src/*.o
